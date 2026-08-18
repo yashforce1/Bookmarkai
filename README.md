@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # BookmarkAI 
 
 A full-stack bookmark management application with AI-powered features.
@@ -104,3 +105,6 @@ BookmarkAI/
     ├── public/
     └── package.json
 ```
+=======
+# devops-automate
+>>>>>>> 17520cde30b8a2408198bdaf8f9dcf0582cf2a89
