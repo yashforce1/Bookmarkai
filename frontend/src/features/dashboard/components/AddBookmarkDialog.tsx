@@ -15,7 +15,11 @@ import {
 import { Plus } from "lucide-react";
 
 
-export function AddBookmarkDialog() {
+interface AddBookmarkDialogProps {
+  onBookmarkAdded: () => void;
+}
+
+export function AddBookmarkDialog({ onBookmarkAdded }: AddBookmarkDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -53,7 +57,8 @@ export function AddBookmarkDialog() {
         throw new Error(error.message || "Failed to add bookmark");
       }
 
-      toast.success("Bookark added successfully!");
+      onBookmarkAdded();
+      toast.success("Bookmark added successfully!");
 
       // Reset form
       setTitle("");

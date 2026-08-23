@@ -16,9 +16,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// DB connection
-connectDB();
-
 const PORT = process.env.PORT || 3000;
 
 // Routes
@@ -26,6 +23,17 @@ app.use('/api/v1', authRoutes);
 app.use('/api/v1',bookmarkRoutes)
  
 
-app.listen(PORT,()=>{
-    console.log(`Server is running on port http://localhost/${PORT}`);
-});
+const startServer = async (): Promise<void> => {
+  try {
+    await connectDB();
+
+    app.listen(PORT, () => {
+      console.log(`✓ API server running at http://localhost:${PORT}`);
+    });
+  } catch {
+    console.error("API server was not started because MongoDB is unavailable.");
+    process.exit(1);
+  }
+};
+
+void startServer();

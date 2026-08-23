@@ -13,11 +13,11 @@ interface Bookmark {
   createdAt: string;
 }
 
-interface BookmarkListProps{
-  onBookmarkAdded?: () => void;
+interface BookmarkListProps {
+  refreshKey: number;
 }
 
-export function BookmarkList({ onBookmarkAdded }:BookmarkListProps) {
+export function BookmarkList({ refreshKey }: BookmarkListProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -25,11 +25,11 @@ export function BookmarkList({ onBookmarkAdded }:BookmarkListProps) {
     fetchBookmarks();
   }, []);
 
-  useEffect(()=>{
-    if(onBookmarkAdded){
-      fetchBookmarks();
+  useEffect(() => {
+    if (refreshKey > 0) {
+      void fetchBookmarks();
     }
-  },[onBookmarkAdded]);
+  }, [refreshKey]);
 
   const fetchBookmarks = async () => {
     try {
