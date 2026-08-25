@@ -1,0 +1,5 @@
+# Environment files must stay local (backend/.env and frontend/.env are already
+# ignored by their package-level rules; this also protects any root-level file).
+.env
+.env.local
+.env.*.local

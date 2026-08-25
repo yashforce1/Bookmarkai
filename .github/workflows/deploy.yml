@@ -1,0 +1,81 @@
+name: Build and deploy BookmarkAI
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+# Never run two deployments against the same EC2 checkout at once.
+concurrency:
+  group: bookmarkai-production
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install, test, and build backend
+        working-directory: backend
+        run: |
+          npm ci
+          npm test --if-present
+          npm run build
+
+      - name: Install, test, and build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test --if-present
+          npm run build
+
+  deploy:
+    name: Deploy to EC2
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd /home/ubuntu/Bookmarkai
+            git fetch origin main
+            git checkout main
+            git pull --ff-only origin main
+
+            cd backend
+            npm ci
+            npm run build
+
+            if pm2 describe bookmarkai > /dev/null 2>&1; then
+              pm2 restart bookmarkai --update-env
+            else
+              pm2 start dist/index.js --name bookmarkai --time
+            fi
+            pm2 save
+
+            cd ../frontend
+            npm ci
+            npm run build
