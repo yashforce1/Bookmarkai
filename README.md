@@ -1,16 +1,3 @@
-Yes. You currently have a **Git merge conflict** in your README:
-
-```text
-<<<<<<< HEAD
-...
-=======
-# devops-automate
->>>>>>> ...
-```
-
-You should remove the conflict markers and use **BookmarkAI as the main README**, with the CI/CD section added at the top.
-
-Here is the **complete merged README** you can replace the entire contents of your `README.md` with:
 
 ````markdown
 # BookmarkAI
