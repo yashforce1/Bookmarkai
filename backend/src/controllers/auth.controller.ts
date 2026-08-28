@@ -104,3 +104,39 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
     });
   }
 };
+
+// Create the shared demo account on demand so guests can enter without signing up.
+export const guestSignin = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const email = "guest@bookmarkai.demo";
+    const password = process.env.GUEST_PASSWORD || "bookmarkai-guest-password";
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const guestUser = await User.findOneAndUpdate(
+      { email },
+      {
+        $setOnInsert: {
+          name: "Guest User",
+          email,
+          password: hashedPassword,
+        },
+      },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+
+    if (!guestUser) {
+      res.status(500).json({ error: "Guest account could not be created" });
+      return;
+    }
+
+    const token = generateJWT(guestUser.id.toString(), guestUser.name, guestUser.email);
+    res.status(200).json({
+      message: "Guest signed in successfully",
+      token,
+      data: { name: guestUser.name, email: guestUser.email },
+    });
+  } catch (error) {
+    console.error("Guest signin error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

@@ -52,4 +52,17 @@ export const authApi = {
     }
     return res.json();
   },
+
+  guestSignIn: async (): Promise<authResponse> => {
+    const res = await fetch(`${API_BASE_URL}/api/v1/guest`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || error.message || "Guest sign in failed");
+    }
+    return res.json();
+  },
 };
