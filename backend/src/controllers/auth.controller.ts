@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { User } from "../models/Users";
-import { userSchema } from "../types/auth.types";
+import { signinSchema, userSchema } from "../types/auth.types";
 import jwt from "jsonwebtoken";
 
 
@@ -62,7 +62,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 
 export const signin = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password }: z.infer<typeof userSchema> = req.body;
+    const { email, password }: z.infer<typeof signinSchema> = req.body;
 
     // Normalize email to lowercase for consistent checking
     const normalizedEmail = email.toLowerCase().trim();
@@ -87,7 +87,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
 
 
     // Generate JWT token
-    const token = generateJWT(userExists.id.toString(),userExists.email,userExists.name);
+    const token = generateJWT(userExists.id.toString(), userExists.name, userExists.email);
 
 
 
@@ -95,7 +95,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       message: "Signed in successfully",
       token,
-      data: { name: userExists.name },
+      data: { name: userExists.name, email: userExists.email },
     });
   } catch (error) {
     console.error("Signin error:", error);

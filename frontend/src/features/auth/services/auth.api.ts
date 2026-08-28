@@ -7,6 +7,22 @@ const API_BASE_URL =
 
 console.log('🔗 Backend URL:', API_BASE_URL);
 
+const fetchWithTimeout = async (url: string, options: RequestInit = {}) => {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 15000);
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("The server took too long to respond. Please try again.");
+    }
+    throw new Error("Unable to connect to the server. Please try again.");
+  } finally {
+    window.clearTimeout(timeout);
+  }
+};
+
 export interface signUpData {
   email: string;
   name: string;
@@ -30,7 +46,7 @@ export interface authResponse {
 export const authApi = {
   // signup Api
   signUp: async (data: signUpData): Promise<authResponse> => {
-    const res = await fetch(`${API_BASE_URL}/api/v1/signup`, {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/api/v1/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -44,7 +60,7 @@ export const authApi = {
 
   // signin Api
   SignIn: async (data: signInData): Promise<authResponse> => {
-    const res = await fetch(`${API_BASE_URL}/api/v1/signin`, {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/api/v1/signin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
