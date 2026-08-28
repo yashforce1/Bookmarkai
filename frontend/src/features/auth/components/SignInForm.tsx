@@ -8,7 +8,7 @@ export default function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { isLoading, login, guestLogin } = useLogin();
+  const { isLoading, login } = useLogin();
   const navigate = useNavigate();
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,13 +20,6 @@ export default function SignInForm() {
       setPassword("");
 
       // redirect
-      navigate("/dashboard");
-    } catch (error) {}
-  }
-
-  async function handleGuestLogin() {
-    try {
-      await guestLogin();
       navigate("/dashboard");
     } catch (error) {}
   }
@@ -72,23 +65,6 @@ export default function SignInForm() {
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
-
-        <div className="my-5 flex items-center gap-3 text-slate-400">
-          <div className="h-px flex-1 bg-slate-200" />
-          <span className="text-xs uppercase tracking-wide">or</span>
-          <div className="h-px flex-1 bg-slate-200" />
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          disabled={isLoading}
-          size="lg"
-          onClick={handleGuestLogin}
-        >
-          {isLoading ? "Entering as guest..." : "Continue as Guest"}
-        </Button>
         
         <div className="mt-6 text-center">
           <p className="text-sm text-slate-600">Don't have an account?</p>

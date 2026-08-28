@@ -26,23 +26,5 @@ export const useLogin = () => {
       setIsLoading(false);
     }
   };
-
-  const guestLogin = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await authApi.guestSignIn();
-      saveAuth(res.token, res.data);
-      toast.success("Welcome to BookmarkAI!");
-      return res;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Guest login failed!";
-      toast.error(errorMessage);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { isLoading, error, login, guestLogin };
+  return { isLoading, error, login };
 };
