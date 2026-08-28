@@ -68,12 +68,20 @@ jobs:
             npm ci
             npm run build
 
-            if pm2 describe bookmarkai > /dev/null 2>&1; then
-              pm2 restart bookmarkai --update-env
-            else
-              pm2 start dist/index.js --name bookmarkai --time
+            # PM2 is a server-level tool and may not be installed on a new EC2 host.
+            # Install it in the SSH user's npm prefix so sudo/root is not required.
+            PM2_BIN="$(command -v pm2 || true)"
+            if [ -z "$PM2_BIN" ]; then
+              npm install --global --prefix "$HOME/.local" pm2
+              PM2_BIN="$HOME/.local/bin/pm2"
             fi
-            pm2 save
+
+            if "$PM2_BIN" describe bookmarkai > /dev/null 2>&1; then
+              "$PM2_BIN" restart bookmarkai --update-env
+            else
+              "$PM2_BIN" start dist/index.js --name bookmarkai --time
+            fi
+            "$PM2_BIN" save
 
             cd ../frontend
             npm ci
