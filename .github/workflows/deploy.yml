@@ -43,7 +43,7 @@ jobs:
         run: |
           npm ci
           npm test --if-present
-          npm run build
+          VITE_BACKEND_URL="http://${{ secrets.EC2_HOST }}:3000" npm run build
 
   deploy:
     name: Deploy to EC2
@@ -85,4 +85,4 @@ jobs:
 
             cd ../frontend
             npm ci
-            npm run build
+            VITE_BACKEND_URL="http://${{ secrets.EC2_HOST }}:3000" npm run build
