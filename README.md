@@ -1,5 +1,4 @@
 
-````markdown
 # BookmarkAI
 
 A full-stack bookmark management application with AI-powered features.
@@ -44,7 +43,24 @@ Deploy to AWS EC2
     │
     ▼
 Running BookmarkAI Application
-````
+```
+
+```mermaid
+flowchart TD
+    A[Developer pushes to main] --> B[GitHub Actions]
+    B --> C[Build and Test]
+    C --> C1[Checkout source]
+    C --> C2[Install dependencies]
+    C --> C3[Build backend]
+    C --> C4[Build frontend]
+    C -->|Success| D[Deploy to EC2 over SSH]
+    D --> E[Pull latest main]
+    E --> F[Build backend]
+    F --> G[Start or restart API with PM2]
+    G --> H[Build frontend]
+    H --> I[BookmarkAI is updated]
+    C -->|Failure| J[Deployment stopped]
+```
 
 ### CI/CD Technology Stack
 
@@ -763,15 +779,13 @@ BookmarkAI Updated
 
 The main benefit is that future deployments no longer require manually SSHing into EC2, pulling the repository, rebuilding the application, and restarting the backend after every code change.
 
-````
-
 ### One important thing before you commit this
 
 Your terminal showed:
 
 ```text
 origin https://github.com/yashforce1/devops-automate.git
-````
+```
 
 while your actual repository is `Bookmarkai`.
 
