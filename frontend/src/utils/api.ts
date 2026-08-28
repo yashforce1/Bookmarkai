@@ -1,4 +1,8 @@
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+export const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL ||
+    (typeof window !== 'undefined'
+        ? `${window.location.protocol}//${window.location.hostname}:3000`
+        : 'http://localhost:3000');
 
 export const authFetch = async (url: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('auth_token');
