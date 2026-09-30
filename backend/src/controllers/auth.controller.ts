@@ -43,8 +43,8 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const user = new User({ name, email: normalizedEmail, password: hashedPassword });
     await user.save();
 
-    // Generae JWT
-    const token = generateJWT(user.id.toString(),user.email,user.name);
+    // Generate JWT
+    const token = generateJWT(user.id.toString(), user.name, user.email);
 
     // Response
     res.status(201).json({
