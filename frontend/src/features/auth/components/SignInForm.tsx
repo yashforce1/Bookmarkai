@@ -25,7 +25,7 @@ export default function SignInForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center from-slate-50 to-slate-100">
+    <div className="min-h-screen flex items-center justify-center bg-blue-500">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold text-center mb-8 text-slate-900">Sign In</h1>
         
