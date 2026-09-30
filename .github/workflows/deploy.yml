@@ -8,10 +8,10 @@ on:
 permissions:
   contents: read
 
-# Never run two deployments against the same EC2 checkout at once.
+# Let an active deployment finish before starting another.
 concurrency:
   group: bookmarkai-production
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-and-test:
@@ -43,7 +43,7 @@ jobs:
         run: |
           npm ci
           npm test --if-present
-          VITE_BACKEND_URL="http://${{ secrets.EC2_HOST }}:3000" npm run build
+          VITE_BACKEND_URL="/backend" npm run build
 
   deploy:
     name: Deploy to EC2
@@ -59,6 +59,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
+
             cd /home/ubuntu/Bookmarkai
             git fetch origin main
             git checkout main
@@ -68,21 +69,28 @@ jobs:
             npm ci
             npm run build
 
-            # PM2 is a server-level tool and may not be installed on a new EC2 host.
-            # Install it in the SSH user's npm prefix so sudo/root is not required.
+            # Find PM2 or install it for the current user.
             PM2_BIN="$(command -v pm2 || true)"
             if [ -z "$PM2_BIN" ]; then
               npm install --global --prefix "$HOME/.local" pm2
               PM2_BIN="$HOME/.local/bin/pm2"
             fi
 
+            # Restart the backend or start it for the first time.
             if "$PM2_BIN" describe bookmarkai > /dev/null 2>&1; then
               "$PM2_BIN" restart bookmarkai --update-env
             else
               "$PM2_BIN" start dist/index.js --name bookmarkai --time
             fi
+
             "$PM2_BIN" save
 
+            # Build the frontend with API requests routed through Nginx.
             cd ../frontend
             npm ci
-            VITE_BACKEND_URL="http://${{ secrets.EC2_HOST }}:3000" npm run build
+            VITE_BACKEND_URL="/backend" npm run build
+
+            # Publish the frontend files to the directory Nginx serves.
+            sudo -n mkdir -p /var/www/bookmarkai
+            sudo -n cp -r dist/. /var/www/bookmarkai/
+            sudo -n chmod -R a+rX /var/www/bookmarkai
